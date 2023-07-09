@@ -7,10 +7,27 @@
 
 #import <Foundation/Foundation.h>
 
+@interface Clazz : NSObject
+
+@property (nonatomic, assign) int i;
+
+@end
+
+@implementation Clazz
+
+- (int)i
+{
+    return self->_i + 3;
+}
+
+@end
+
+
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        // insert code here...
-        NSLog(@"Hello, World!");
+        Clazz *obj = [[Clazz alloc] init];
+        obj.i = 1;
+        NSLog(@"Hello, World! i is %i.", obj.i);
     }
     return 0;
 }

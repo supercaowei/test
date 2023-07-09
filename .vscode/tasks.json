@@ -1,0 +1,18 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "build jsontest",
+            "command": "/usr/bin/clang++",
+            "args": [
+                "-std=c++17",
+                "-g",
+                "--debug",
+                "${workspaceFolder}/jsontest/jsontest.cpp",
+                "-o",
+                "${workspaceFolder}/jsontest/jsontest"
+            ]
+        }
+    ],
+    "version": "2.0.0"
+}
