@@ -4,16 +4,16 @@
 
 class JsonParser {
 public:
-	virtual void toJson(nlohmann::json& j) const = 0;
-	virtual void fromJson(const nlohmann::json& j) = 0;
+    virtual void toJson(nlohmann::json& j) const = 0;
+    virtual void fromJson(const nlohmann::json& j) = 0;
 };
 
 void to_json(nlohmann::json& j, const JsonParser& trace) {
-	trace.toJson(j);
+    trace.toJson(j);
 }
 
 void from_json(const nlohmann::json& j, JsonParser& trace) {
-	trace.fromJson(j);
+    trace.fromJson(j);
 }
 
 //通用解析
@@ -119,50 +119,59 @@ void parseValue(const nlohmann::json &jobj, const char* key, std::string& var, b
 
 #define FROM_JSON(j, varName) \
 do {\
-	parseValue(j, #varName, this->varName, true);\
+    parseValue(j, #varName, this->varName, true);\
 } while(0)
 
 struct Trace : public JsonParser {
     uint32_t event_time = 0;
     std::string event_key;
-	struct Message : public JsonParser {
-		int i = 0;
+    struct Message : public JsonParser {
+        int i = 0;
 
-		void toJson(nlohmann::json& j) const override {
-			TO_JSON(j, i);
-		}
+        void toJson(nlohmann::json& j) const override {
+            TO_JSON(j, i);
+        }
 
-		void fromJson(const nlohmann::json& j) override {
-			FROM_JSON(j, i);
-		}
-	};
-	Message message;
+        void fromJson(const nlohmann::json& j) override {
+            FROM_JSON(j, i);
+        }
+    };
+    Message message;
 
-	void toJson(nlohmann::json& j) const override {
-		//先执行父类的toJson方法
-		TO_JSON(j, event_time);
-		TO_JSON(j, event_key);
-		TO_JSON(j, message);
-	}
+    void toJson(nlohmann::json& j) const override {
+        //先执行父类的toJson方法
+        TO_JSON(j, event_time);
+        TO_JSON(j, event_key);
+        TO_JSON(j, message);
+    }
 
-	void fromJson(const nlohmann::json& j) override {
-		//先执行父类的fromJson方法
-		FROM_JSON(j, event_time);
-		FROM_JSON(j, event_key);
-		FROM_JSON(j, message);
-	}
+    void fromJson(const nlohmann::json& j) override {
+        //先执行父类的fromJson方法
+        FROM_JSON(j, event_time);
+        FROM_JSON(j, event_key);
+        FROM_JSON(j, message);
+    }
 };
 
 int main() {
-	Trace trace;
-	trace.event_time = 123;
-	trace.event_key = "push_stream";
+    Trace trace;
+    trace.event_time = 123;
+    trace.event_key = "push_stream";
     nlohmann::json j(trace);
     printf("%s\n", j.dump().c_str());
 
-	j = "{\"event_time\":\"10.5\",\"event_key\":[\"connect_start\"],\"message\":{\"i\":100}}"_json;
-	j.get_to<Trace>(trace);
-	std::cout << "trace event_time: " << trace.event_time << ", event_key: " << trace.event_key 
-        << ", message: { i: " << trace.message << " }" << std::endl;
+    nlohmann::json jArray = nlohmann::json::parse("[1,2,3,4]");
+    printf("jArray type: %s, value: %s\n", jArray.type_name(), jArray.dump().c_str());
+    std::vector<int> array;
+    jArray.get_to<std::vector<int>>(array);
+    std::cout << "array size: " << array.size() << ", value: ";
+    for (int i = 0; i < array.size(); i++) {
+        std::cout << array[i] << (i == array.size() - 1 ? "\n" : ", ");
+    }
+
+    j = "{\"event_time\":\"10.5\",\"event_key\":[\"connect_start\"],\"message\":{\"i\":100}}"_json;
+    j.get_to<Trace>(trace);
+    std::cout << "trace event_time: " << trace.event_time << ", event_key: " << trace.event_key 
+        << ", message: { i: " << trace.message.i << " }" << std::endl;
     return 0;
 }
